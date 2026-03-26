@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FanFinder — Your Soccer Match</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#020b18;
+  --bg2:#041222;
+  --bg3:#061a2e;
+  --card:rgba(4,20,42,0.7);
+  --accent:#00e5ff;
+  --accent2:#00b8d9;
+  --accent-dim:rgba(0,229,255,0.10);
+  --accent-glow:0 0 28px rgba(0,229,255,0.40);
+  --text:#d6f4ff;
+  --muted:#2e6070;
+  --muted2:#4a8fa8;
+  --border:rgba(0,229,255,0.10);
+  --border2:rgba(0,229,255,0.18);
+  --red:#ff4d6d;
+  --glass-bg:rgba(255,255,255,0.04);
+  --glass-border:rgba(0,229,255,0.18);
+  --glass-hi:rgba(255,255,255,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* deep space background with cyan nebula blobs */
+body::before{content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(0,180,220,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 75%, rgba(0,100,200,0.08) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 30% at 50% 50%, rgba(0,229,255,0.03) 0%, transparent 70%),
+    repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(0,229,255,0.02) 79px,rgba(0,229,255,0.02) 80px),
+    repeating-linear-gradient(90deg,transparent,transparent 79px,rgba(0,229,255,0.02) 79px,rgba(0,229,255,0.02) 80px);
+  pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border-radius:50%;border:1px solid rgba(0,229,255,0.04);box-shadow:0 0 120px rgba(0,229,255,0.04);pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:0 28px;}
+
+/* HERO */
+.hero{text-align:center;padding:88px 0 64px;animation:fadeUp .7s ease both;}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(0,229,255,0.08);backdrop-filter:blur(12px);border:1px solid rgba(0,229,255,0.30);color:var(--accent);font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:7px 20px;border-radius:100px;margin-bottom:32px;box-shadow:0 0 20px rgba(0,229,255,0.10),inset 0 1px 0 rgba(255,255,255,0.10);}
+.hero-pill::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;box-shadow:0 0 10px var(--accent);animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,13vw,130px);line-height:.88;letter-spacing:2px;margin-bottom:22px;}
+.hero h1 em{font-style:normal;color:var(--accent);text-shadow:0 0 80px rgba(0,229,255,0.5),0 0 30px rgba(0,229,255,0.3);}
+.hero p{max-width:500px;margin:0 auto;font-size:16px;line-height:1.7;color:var(--muted2);font-weight:300;}
+.hero p strong{color:var(--text);font-weight:500;}
+
+/* SECTION */
+.sec-label{display:flex;align-items:center;gap:12px;font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:4px;color:var(--accent);opacity:.75;margin-bottom:14px;}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,rgba(0,229,255,0.25),transparent);}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1.5px;margin-bottom:28px;line-height:1;}
+.step{margin-bottom:64px;}
+
+/* POSITION CARDS */
+.pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.pos-card-wrap{perspective:900px;}
+.pos-card{
+  background:linear-gradient(160deg,rgba(0,229,255,0.09) 0%,rgba(0,60,100,0.18) 60%,rgba(0,10,30,0.35) 100%);
+  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+  border:1.5px solid rgba(0,229,255,0.22);
+  border-radius:24px;padding:40px 28px 32px;cursor:pointer;
+  transition:border-color .22s,box-shadow .22s;
+  text-align:center;position:relative;overflow:hidden;
+  transform-style:preserve-3d;will-change:transform;
+  box-shadow:
+    0 2px 0 rgba(0,229,255,0.15),
+    0 6px 0 rgba(0,100,140,0.12),
+    0 10px 0 rgba(0,60,90,0.10),
+    0 14px 0 rgba(0,30,50,0.08),
+    0 18px 40px rgba(0,0,0,.55),
+    0 28px 60px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.3);}
+/* shimmer sweep — hover only */
+.pos-card::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(0,229,255,0.13) 50%,transparent 70%);
+  background-size:200% 100%;background-position:200% 0;
+  opacity:0;transition:opacity .2s;pointer-events:none;z-index:1;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.pos-card:hover::before,.pos-card.active::before{opacity:1;animation:shimmer 1.4s ease forwards;}
+/* top edge highlight */
+.pos-card::after{content:'';position:absolute;top:0;left:12px;right:12px;height:1px;
+  background:linear-gradient(to right,transparent,rgba(0,229,255,0.55),transparent);
+  border-radius:1px;}
+.pos-card:hover{
+  border-color:rgba(0,229,255,0.50);
+  box-shadow:
+    0 2px 0 rgba(0,229,255,0.20),
+    0 6px 0 rgba(0,120,160,0.15),
+    0 10px 0 rgba(0,70,100,0.12),
+    0 14px 0 rgba(0,40,60,0.10),
+    0 20px 50px rgba(0,0,0,.65),
+    0 36px 70px rgba(0,229,255,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    inset 0 -1px 0 rgba(0,0,0,0.3);}
+.pos-card.active{
+  border-color:var(--accent);
+  box-shadow:
+    0 2px 0 rgba(0,229,255,0.35),
+    0 6px 0 rgba(0,150,180,0.20),
+    0 10px 0 rgba(0,100,130,0.15),
+    0 14px 0 rgba(0,60,80,0.12),
+    0 20px 50px rgba(0,0,0,.65),
+    0 0 50px rgba(0,229,255,0.18),
+    0 36px 70px rgba(0,229,255,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.16),
+    inset 0 -1px 0 rgba(0,0,0,0.3);}
+/* press-down on click */
+.pos-card:active{
+  box-shadow:
+    0 1px 0 rgba(0,229,255,0.18),
+    0 3px 0 rgba(0,100,140,0.12),
+    0 8px 20px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,0.08);}
+.pos-icon{
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:18px;position:relative;z-index:2;
+  transition:transform .25s,filter .25s;
+  filter:drop-shadow(0 0 12px rgba(0,229,255,0.55)) drop-shadow(0 4px 8px rgba(0,0,0,0.6));}
+.pos-icon svg{width:58px;height:58px;}
+.pos-card:hover .pos-icon{transform:translateY(-4px) scale(1.06);filter:drop-shadow(0 0 18px rgba(0,229,255,0.80)) drop-shadow(0 8px 14px rgba(0,0,0,0.7));}
+.pos-card.active .pos-icon{filter:drop-shadow(0 0 22px rgba(0,229,255,1)) drop-shadow(0 6px 12px rgba(0,0,0,0.7));}
+.pos-card h3{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;margin-bottom:8px;position:relative;z-index:2;transition:text-shadow .25s;}
+.pos-card:hover h3{text-shadow:0 0 20px rgba(0,229,255,0.45);}
+.pos-card.active h3{text-shadow:0 0 28px rgba(0,229,255,0.65);}
+.pos-card p{font-size:13px;color:var(--muted2);line-height:1.55;position:relative;z-index:2;}
+.pos-check{position:absolute;top:16px;right:16px;width:24px;height:24px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:700;opacity:0;transform:scale(.4);transition:opacity .22s,transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 16px var(--accent),0 0 32px rgba(0,229,255,0.4);z-index:3;}
+.pos-card.active .pos-check{opacity:1;transform:scale(1);}
+
+/* SLIDERS */
+#sliders-section{display:none;}
+#sliders-section.show{display:block;animation:fadeUp .4s ease both;}
+.sliders-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.slider-card{
+  background:linear-gradient(150deg,rgba(0,229,255,0.07) 0%,rgba(0,50,90,0.16) 55%,rgba(0,10,28,0.32) 100%);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(0,229,255,0.18);
+  border-radius:18px;padding:20px 22px 22px;
+  position:relative;overflow:hidden;
+  transform-style:preserve-3d;will-change:transform;
+  transition:border-color .22s,box-shadow .22s;
+  box-shadow:
+    0 2px 0 rgba(0,229,255,0.12),
+    0 5px 0 rgba(0,80,120,0.10),
+    0 9px 0 rgba(0,40,70,0.08),
+    0 13px 32px rgba(0,0,0,.50),
+    0 22px 50px rgba(0,0,0,.30),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.25);}
+/* shimmer sweep — hover only */
+.slider-card::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(0,229,255,0.11) 50%,transparent 70%);
+  background-size:200% 100%;background-position:200% 0;
+  opacity:0;transition:opacity .2s;pointer-events:none;z-index:0;}
+.slider-card:hover::before,.slider-card:focus-within::before{opacity:1;animation:shimmer 1.4s ease forwards;}
+/* top edge highlight */
+.slider-card::after{content:'';position:absolute;top:0;left:10px;right:10px;height:1px;
+  background:linear-gradient(to right,transparent,rgba(0,229,255,0.45),transparent);
+  border-radius:1px;pointer-events:none;}
+.slider-card:hover{
+  border-color:rgba(0,229,255,0.35);
+  box-shadow:
+    0 2px 0 rgba(0,229,255,0.18),
+    0 5px 0 rgba(0,100,140,0.13),
+    0 9px 0 rgba(0,60,90,0.10),
+    0 15px 40px rgba(0,0,0,.60),
+    0 28px 60px rgba(0,229,255,0.07),
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 0 rgba(0,0,0,0.28);}
+.slider-card:focus-within{
+  border-color:rgba(0,229,255,0.45);
+  box-shadow:
+    0 2px 0 rgba(0,229,255,0.22),
+    0 5px 0 rgba(0,120,160,0.15),
+    0 9px 0 rgba(0,80,110,0.12),
+    0 15px 40px rgba(0,0,0,.60),
+    0 0 30px rgba(0,229,255,0.10),
+    inset 0 1px 0 rgba(0,229,255,0.15),
+    inset 0 -1px 0 rgba(0,0,0,0.28);}
+/* press-down */
+.slider-card.pressing{
+  box-shadow:
+    0 1px 0 rgba(0,229,255,0.12),
+    0 3px 0 rgba(0,80,120,0.10),
+    0 6px 16px rgba(0,0,0,.50),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;}
+.slider-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;position:relative;z-index:1;}
+.slider-name{font-weight:600;font-size:13.5px;line-height:1.3;flex:1;margin-right:10px;color:var(--text);transition:text-shadow .25s;}
+.slider-card:hover .slider-name,.slider-card:focus-within .slider-name{text-shadow:0 0 16px rgba(0,229,255,0.35);}
+.slider-num{
+  width:68px;
+  background:rgba(0,10,28,0.6);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(0,229,255,0.25);
+  border-radius:10px;color:var(--accent);
+  font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;
+  text-align:center;padding:5px 8px;outline:none;
+  transition:border-color .2s,box-shadow .2s;flex-shrink:0;position:relative;z-index:1;
+  box-shadow:inset 0 1px 4px rgba(0,0,0,.5);}
+.slider-num:focus{border-color:rgba(0,229,255,0.65);box-shadow:0 0 0 3px rgba(0,229,255,0.12),inset 0 1px 4px rgba(0,0,0,.5);}
+.slider-desc{font-size:11.5px;color:var(--muted2);margin-bottom:14px;line-height:1.45;position:relative;z-index:1;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;background:rgba(255,255,255,0.07);outline:none;cursor:pointer;border:1px solid rgba(0,229,255,0.10);box-shadow:inset 0 1px 4px rgba(0,0,0,.5);}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.55),rgba(0,229,255,0.9) 60%);
+  backdrop-filter:blur(6px);
+  border:1.5px solid rgba(255,255,255,0.35);
+  box-shadow:0 0 14px rgba(0,229,255,0.7),0 2px 8px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,0.5);
+  cursor:pointer;transition:transform .15s,box-shadow .15s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.25);box-shadow:0 0 22px rgba(0,229,255,0.9),0 3px 12px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,0.6);}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--accent);border:1.5px solid rgba(255,255,255,.35);box-shadow:0 0 14px rgba(0,229,255,.7);cursor:pointer;}
+
+/* SUBMIT */
+.submit-area{text-align:center;padding:44px 0 16px;}
+.btn-find{
+  display:inline-flex;align-items:center;gap:12px;
+  background:rgba(0,229,255,0.12);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  color:var(--accent);
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2.5px;
+  padding:18px 56px;border-radius:100px;
+  border:1.5px solid rgba(0,229,255,0.45);
+  cursor:pointer;
+  transition:transform .18s,box-shadow .2s,background .2s,border-color .2s;
+  box-shadow:0 0 30px rgba(0,229,255,0.20),inset 0 1px 0 rgba(255,255,255,0.12);
+  text-shadow:0 0 20px rgba(0,229,255,0.6);}
+.btn-find:hover{
+  transform:translateY(-3px);
+  background:rgba(0,229,255,0.20);
+  border-color:rgba(0,229,255,0.75);
+  box-shadow:0 0 50px rgba(0,229,255,0.35),0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,0.18);}
+.btn-find:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-find svg{width:18px;height:18px;flex-shrink:0;}
+
+/* LOADING */
+.loading{display:none;text-align:center;padding:80px 0;}
+.loading.show{display:block;animation:fadeUp .4s ease both;}
+.spinner{width:52px;height:52px;border:2px solid rgba(0,229,255,0.15);border-top-color:var(--accent);border-radius:50%;margin:0 auto 20px;animation:spin .7s linear infinite;box-shadow:0 0 20px rgba(0,229,255,0.15);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-msg{font-size:14px;color:var(--muted2);transition:opacity .3s;}
+
+/* ERROR */
+.error-msg{display:none;text-align:center;padding:40px;color:var(--red);font-size:15px;line-height:1.7;}
+.error-msg.show{display:block;}
+
+/* RESULTS */
+#results-section{display:none;}
+#results-section.show{display:block;animation:fadeUp .4s ease both;}
+.team-hero{
+  background:rgba(0,229,255,0.05);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(0,229,255,0.22);
+  border-radius:22px;padding:40px;text-align:center;margin-bottom:36px;position:relative;overflow:hidden;
+  box-shadow:0 0 60px rgba(0,229,255,0.06),inset 0 1px 0 rgba(255,255,255,0.07);}
+.team-hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:400px;height:260px;background:radial-gradient(circle,rgba(0,229,255,0.10),transparent 65%);pointer-events:none;}
+.team-hero::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(0,229,255,0.5),transparent);}
+.team-hero-label{font-size:10px;letter-spacing:3.5px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;font-weight:600;text-shadow:0 0 12px rgba(0,229,255,0.5);}
+.team-hero h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,6vw,58px);letter-spacing:2px;margin-bottom:10px;}
+.team-hero p{color:var(--muted2);font-size:15px;max-width:440px;margin:0 auto;}
+.results-label{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--muted2);margin-bottom:20px;}
+
+/* PLAYER CARDS — 3-column layout, centered */
+.players-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,320px));
+  gap:20px;
+  margin-bottom:44px;
+  justify-content:center;
+}
+@media(max-width:700px){.players-grid{grid-template-columns:repeat(2,minmax(0,320px));}}
+@media(max-width:500px){.players-grid{grid-template-columns:minmax(0,400px);}.sliders-grid{grid-template-columns:1fr;}.pos-grid{grid-template-columns:1fr 1fr;}}
+
+.player-card{
+  background:rgba(0,229,255,0.04);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(0,229,255,0.13);
+  border-radius:18px;overflow:visible;
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+  opacity:0;animation:fadeUp .5s ease forwards;display:flex;flex-direction:column;
+  box-shadow:0 4px 20px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,0.05);}
+.player-card:nth-child(1){animation-delay:.06s;}
+.player-card:nth-child(2){animation-delay:.12s;}
+.player-card:nth-child(3){animation-delay:.18s;}
+.player-card:nth-child(4){animation-delay:.24s;}
+.player-card:nth-child(5){animation-delay:.30s;}
+.player-card:hover{transform:translateY(-5px);border-color:rgba(0,229,255,0.35);box-shadow:0 14px 44px rgba(0,0,0,.55),0 0 24px rgba(0,229,255,0.08);}
+
+/* Card header */
+.pc-top{
+  background:rgba(0,229,255,0.06);
+  backdrop-filter:blur(12px);
+  padding:18px 18px 14px;
+  border-bottom:1px solid rgba(0,229,255,0.12);
+  position:relative;
+  border-radius:18px 18px 0 0;
+  overflow:hidden;
+}
+.pc-match{position:absolute;top:12px;right:12px;background:rgba(0,229,255,0.15);backdrop-filter:blur(8px);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.5px;padding:2px 9px;border-radius:7px;border:1px solid rgba(0,229,255,0.35);box-shadow:0 0 10px rgba(0,229,255,0.2);}
+.pc-arch{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;font-weight:600;padding-right:52px;text-shadow:0 0 8px rgba(0,229,255,0.4);}
+.pc-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.6px;line-height:1.1;margin-bottom:3px;}
+.pc-team{font-size:11px;color:var(--muted2);}
+
+/* player photo */
+.pc-photo-wrap{
+  display:flex;justify-content:center;
+  margin-bottom:14px;
+}
+.pc-photo{
+  width:88px;height:88px;
+  border-radius:50%;
+  object-fit:cover;object-position:top center;
+  border:2px solid rgba(0,229,255,0.40);
+  box-shadow:0 0 18px rgba(0,229,255,0.25),0 4px 16px rgba(0,0,0,0.6);
+  background:rgba(0,229,255,0.06);
+  display:block;
+}
+.pc-photo-fallback{
+  width:88px;height:88px;
+  border-radius:50%;
+  border:2px solid rgba(0,229,255,0.25);
+  box-shadow:0 0 14px rgba(0,229,255,0.15),0 4px 16px rgba(0,0,0,0.5);
+  background:rgba(0,229,255,0.07);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:26px;
+  color:var(--accent);
+  letter-spacing:1px;
+  text-shadow:0 0 14px rgba(0,229,255,0.6);
+}
+
+/* Card body */
+.pc-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:10px;}
+
+/* CONTEXT BLOCK */
+.pc-context{display:flex;flex-direction:column;gap:4px;}
+.ctx-row{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:3px 0;border-bottom:1px solid rgba(0,229,255,0.08);}
+.ctx-row:last-child{border-bottom:none;}
+.ctx-label{color:var(--muted2);}
+.ctx-val{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;}
+
+/* KNN BREAKDOWN */
+.breakdown-toggle{
+  background:rgba(0,229,255,0.05);
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(0,229,255,0.18);
+  border-radius:8px;color:var(--muted2);
+  font-family:'Outfit',sans-serif;font-size:10.5px;
+  padding:6px 12px;cursor:pointer;width:100%;text-align:left;
+  display:flex;justify-content:space-between;align-items:center;
+  transition:border-color .2s,color .2s,background .2s;margin-top:2px;}
+.breakdown-toggle:hover{border-color:rgba(0,229,255,0.45);color:var(--accent);background:rgba(0,229,255,0.10);}
+.bd-arrow{font-size:8px;transition:transform .22s;}
+.breakdown-toggle.open .bd-arrow{transform:rotate(180deg);}
+
+/* breakdown panel — sits naturally inside the card, no overflow tricks needed */
+.breakdown-panel{
+  display:none;
+  width:100%;
+  margin-top:8px;
+  background:rgba(0,5,20,0.85);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(0,229,255,0.25);
+  border-radius:12px;
+  padding:14px 14px 10px;
+  font-size:12px;
+  box-shadow:0 4px 24px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.breakdown-panel.open{display:block;animation:fadeUp .2s ease both;}
+
+.bd-head-row{
+  display:grid;
+  grid-template-columns:1fr 64px 64px;
+  gap:4px;
+  font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted2);
+  margin-bottom:8px;padding-bottom:7px;
+  border-bottom:1px solid rgba(0,229,255,0.18);
+}
+.bd-head-row span:nth-child(2){ color:var(--accent); text-align:right; }
+.bd-head-row span:nth-child(3){ text-align:right; }
+
+.bd-row{
+  display:grid;
+  grid-template-columns:1fr 64px 64px;
+  gap:4px;
+  align-items:center;
+  padding:6px 0 2px;
+  border-bottom:1px solid rgba(0,229,255,0.06);
+}
+.bd-row:last-child{border-bottom:none;}
+.bd-feat{
+  color:var(--text);
+  font-size:11px;
+  line-height:1.3;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.bd-vals{display:contents;}
+.bd-player{
+  color:var(--accent);
+  font-variant-numeric:tabular-nums;
+  text-align:right;
+  font-weight:700;
+  font-size:12px;
+  text-shadow:0 0 8px rgba(0,229,255,0.5);
+}
+.bd-target{
+  color:var(--muted2);
+  font-variant-numeric:tabular-nums;
+  text-align:right;
+  font-size:12px;
+}
+
+/* bar spans full width below each row */
+.bd-bar-track{
+  grid-column:1/-1;
+  height:3px;
+  background:rgba(0,229,255,0.10);
+  border-radius:3px;
+  margin-bottom:4px;
+  overflow:hidden;
+}
+.bd-bar-fill{
+  height:100%;
+  background:linear-gradient(to right,var(--accent2),var(--accent));
+  border-radius:3px;
+  transition:width 1s ease;
+  box-shadow:0 0 6px rgba(0,229,255,0.5);
+}
+
+/* RESET */
+.btn-reset{
+  display:block;margin:0 auto 88px;
+  background:rgba(0,229,255,0.05);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(0,229,255,0.20);
+  color:var(--muted2);font-family:'Outfit',sans-serif;font-size:14px;
+  padding:11px 32px;border-radius:100px;cursor:pointer;
+  transition:border-color .2s,color .2s,background .2s,box-shadow .2s;}
+.btn-reset:hover{border-color:rgba(0,229,255,0.50);color:var(--accent);background:rgba(0,229,255,0.10);box-shadow:0 0 20px rgba(0,229,255,0.10);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+.divider{height:1px;background:linear-gradient(to right,transparent,rgba(0,229,255,0.20),transparent);margin:16px 0 56px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-pill">UCL 2025 &middot; KNN-Powered Matching</div>
+    <h1>FIND YOUR<br><em>PLAYER</em></h1>
+    <p>Never watched soccer but want to start? Tell us what kind of player excites you and we'll match you with <strong>real Champions League stars</strong> from our dataset — plus the team you should become a die-hard fan of.</p>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step" id="step1" style="animation:fadeUp .6s .2s ease both;opacity:0;">
+    <div class="sec-label">STEP 01</div>
+    <div class="sec-title">What kind of player appeals to you?</div>
+    <div class="pos-grid">
+      <div class="pos-card-wrap">
+      <div class="pos-card" id="pos-gk" onclick="selectPos('goalkeeper')">
+        <div class="pos-check">✓</div>
+        <span class="pos-icon">
+          <!-- goalkeeper: figure with arms spread wide blocking goal -->
+          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" color="var(--accent)">
+            <!-- head -->
+            <circle cx="26" cy="7" r="4" stroke-width="2"/>
+            <!-- torso -->
+            <line x1="26" y1="11" x2="26" y2="28" stroke-width="2"/>
+            <!-- arms spread wide - goalkeeper ready pose -->
+            <line x1="26" y1="15" x2="6" y2="22" stroke-width="2"/>
+            <line x1="26" y1="15" x2="46" y2="22" stroke-width="2"/>
+            <!-- hands -->
+            <circle cx="6" cy="22" r="2" fill="var(--accent)" stroke-width="1.5"/>
+            <circle cx="46" cy="22" r="2" fill="var(--accent)" stroke-width="1.5"/>
+            <!-- legs -->
+            <line x1="26" y1="28" x2="19" y2="42" stroke-width="2"/>
+            <line x1="26" y1="28" x2="33" y2="42" stroke-width="2"/>
+            <!-- feet -->
+            <line x1="19" y1="42" x2="14" y2="44" stroke-width="2"/>
+            <line x1="33" y1="42" x2="38" y2="44" stroke-width="2"/>
+            <!-- goal crossbar behind -->
+            <line x1="4" y1="10" x2="48" y2="10" stroke-width="1.5" stroke-opacity="0.4"/>
+            <line x1="4" y1="10" x2="4" y2="28" stroke-width="1.5" stroke-opacity="0.4"/>
+            <line x1="48" y1="10" x2="48" y2="28" stroke-width="1.5" stroke-opacity="0.4"/>
+          </svg>
+        </span>
+        <h3>Goalkeeper</h3>
+        <p>The last line of defense. Shot-stopper, organiser, penalty hero. Commands the whole 18-yard box.</p>
+      </div>
+      </div>
+      <div class="pos-card-wrap">
+      <div class="pos-card" id="pos-out" onclick="selectPos('outfielder')">
+        <div class="pos-check">✓</div>
+        <span class="pos-icon">
+          <!-- outfielder: figure mid-stride kicking a ball -->
+          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" color="var(--accent)">
+            <!-- head -->
+            <circle cx="20" cy="6" r="4" stroke-width="2"/>
+            <!-- torso leaning forward -->
+            <line x1="20" y1="10" x2="22" y2="26" stroke-width="2"/>
+            <!-- left arm back -->
+            <line x1="21" y1="15" x2="8" y2="20" stroke-width="2"/>
+            <!-- right arm forward for balance -->
+            <line x1="21" y1="15" x2="32" y2="12" stroke-width="2"/>
+            <!-- left leg planted -->
+            <line x1="22" y1="26" x2="16" y2="40" stroke-width="2"/>
+            <line x1="16" y1="40" x2="10" y2="42" stroke-width="2"/>
+            <!-- right leg kicking forward -->
+            <line x1="22" y1="26" x2="30" y2="34" stroke-width="2"/>
+            <line x1="30" y1="34" x2="42" y2="30" stroke-width="2"/>
+            <!-- ball -->
+            <circle cx="45" cy="36" r="5" stroke-width="2"/>
+            <!-- ball detail lines -->
+            <path d="M41 33 Q45 36 49 33" stroke-width="1" stroke-opacity="0.6"/>
+            <path d="M40 37 Q45 36 50 37" stroke-width="1" stroke-opacity="0.6"/>
+          </svg>
+        </span>
+        <h3>Outfielder</h3>
+        <p>Strikers, midfielders, defenders — the players who dribble, score, tackle and make the game happen.</p>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="sliders-section">
+    <div class="divider"></div>
+    <div class="sec-label">STEP 02</div>
+    <div class="sec-title">Dial in your ideal player</div>
+    <div class="sliders-grid" id="sliders-grid"></div>
+    <div class="submit-area">
+      <button class="btn-find" id="find-btn" onclick="findPlayers()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        FIND MY PLAYER
+      </button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-msg" id="load-msg">Scanning the Champions League...</div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- RESULTS -->
+  <div id="results-section">
+    <div class="divider"></div>
+    <div class="sec-label">STEP 03 — YOUR MATCH</div>
+    <div class="sec-title">These players were made for you</div>
+
+    <div class="team-hero">
+      <div class="team-hero-label"> Your Team to Support</div>
+      <h2 id="team-name">—</h2>
+      <p id="team-reason">—</p>
+    </div>
+
+    <div class="results-label">TOP 5 PLAYERS MATCHING YOUR PROFILE</div>
+    <div class="players-grid" id="players-grid"></div>
+    <button class="btn-reset" onclick="reset()">← Start Over</button>
+  </div>
+
+  <footer style="text-align:center;padding:40px 0 56px;border-top:1px solid var(--border);margin-top:24px;">
+    <p style="font-size:13px;color:var(--muted);line-height:1.8;">
+      Made by <span style="color:var(--text);font-weight:600;">Shaurya Likhi</span> &mdash; University of Waterloo Computer Science Student
+    </p>
+    <a href="https://github.com/Shaurya1126" target="_blank" rel="noopener"
+       style="display:inline-flex;align-items:center;gap:8px;margin-top:12px;color:var(--accent);font-size:13px;font-weight:500;text-decoration:none;border:1px solid rgba(0,229,255,.25);border-radius:100px;padding:7px 18px;transition:border-color .2s,box-shadow .2s,background .2s;background:rgba(0,229,255,0.06);backdrop-filter:blur(10px);"
+       onmouseover="this.style.borderColor='rgba(0,229,255,.6)';this.style.boxShadow='0 0 20px rgba(0,229,255,.20)';this.style.background='rgba(0,229,255,0.12)'"
+       onmouseout="this.style.borderColor='rgba(0,229,255,.25)';this.style.boxShadow='none';this.style.background='rgba(0,229,255,0.06)'">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.84 1.237 1.84 1.237 1.07 1.835 2.807 1.305 3.492.998.108-.776.418-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23a11.52 11.52 0 0 1 3-.405c1.02.005 2.045.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      github.com/Shaurya1126
+    </a>
+  </footer>
+</div>
+<script>
+const BACKEND_URL = 'http://localhost:5001/recommend';
+let selectedPos = null;
+
+/* ── SLIDER CONFIG ── */
+const GK_SLIDERS = [
+  {key:'saves_per_90',     label:'Saves per 90 min',       desc:'How many shots should your keeper stop each game? Average keeper stops ~3.',        min:0,   max:8,   step:0.1, def:3},
+  {key:'clean_sheets_p90', label:'Clean Sheets per 90',    desc:'How often should they keep the opposition scoreless? 0=never, 1=every game.',       min:0,   max:1,   step:0.05,def:0.4},
+  {key:'goals_conc_p90',   label:'Goals Conceded per 90',  desc:'Lower means an iron wall. Higher means exciting end-to-end games.',                 min:0,   max:3,   step:0.1, def:1.0},
+  {key:'punches_p90',      label:'Punch Clearances /90',   desc:'How often should they punch the ball away from danger?',                            min:0,   max:4,   step:0.1, def:0.5},
+  {key:'height',           label:'Height (cm)',             desc:'Taller keepers dominate aerial balls. Shorter ones are often more agile.',          min:170, max:205, step:1,   def:189},
+  {key:'weight',           label:'Weight (kg)',             desc:'Heavier keepers are harder to barge. Lighter ones move faster across the line.',    min:70,  max:105, step:1,   def:83},
+  {key:'pen_saves',        label:'Penalty Saves (total)',   desc:'Clutch factor. How many spot-kicks should your ideal keeper have stopped?',          min:0,   max:6,   step:1,   def:1},
+];
+const OUT_SLIDERS = [
+  {key:'height',           label:'Height (cm)',             desc:'Tall target men win headers. Shorter players are trickier to dispossess.',           min:160, max:200, step:1,   def:180},
+  {key:'weight',           label:'Weight (kg)',             desc:'Powerful builds for hold-up play, or lighter builds for quick bursts of pace?',      min:60,  max:100, step:1,   def:76},
+  {key:'goals_per_game',   label:'Goals per Game',          desc:'How clinical should your player be? 0.5 = prolific, 0.1 = occasional threat.',      min:0,   max:1.5, step:0.05,def:0.4},
+  {key:'team_index',       label:'How much of a team player do you want them to be? (%)',  desc:'30 = direct counter-attack. 70 = possession, tiki-taka.',                           min:30,  max:70,  step:1,   def:50},
+  {key:'showman',          label:'Showman Index (0–10)',    desc:'Flair rating — step-overs, nutmegs, jaw-dropping moments. Higher = more magic.',    min:0,   max:10,  step:0.5, def:5},
+  {key:'top_speed',        label:'Top Speed (km/h)',        desc:'Average sprint is ~30 km/h. Elite speedsters hit 36+.',                             min:25,  max:38,  step:0.5, def:32},
+  {key:'runner_index',     label:'How much of a runner do you want them to be? (between 20% to 60%)',    desc:'How much ground should they cover? High = non-stop box-to-box engine.',              min:20,  max:60,  step:1,   def:40},
+  {key:'aggression',       label:'Aggression Index (0–10)', desc:'Hard-tackling warrior or composed technician? Higher = more tenacious.',            min:0,   max:10,  step:0.5, def:5},
+];
+
+/* ── POSITION SELECT ── */
+function selectPos(pos) {
+  selectedPos = pos;
+  document.getElementById('pos-gk').classList.toggle('active', pos==='goalkeeper');
+  document.getElementById('pos-out').classList.toggle('active', pos==='outfielder');
+  const sec = document.getElementById('sliders-section');
+  sec.classList.remove('show'); void sec.offsetWidth;
+  sec.style.display = 'block'; sec.classList.add('show');
+  buildSliders(pos==='goalkeeper' ? GK_SLIDERS : OUT_SLIDERS);
+  setTimeout(()=> sec.scrollIntoView({behavior:'smooth',block:'start'}), 80);
+}
+
+/* ── BUILD SLIDERS ── */
+function buildSliders(config) {
+  const grid = document.getElementById('sliders-grid');
+  grid.innerHTML = '';
+  config.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'slider-card';
+    card.innerHTML = `
+      <div class="slider-top">
+        <div class="slider-name">${s.label}</div>
+        <input class="slider-num" id="num-${s.key}" type="number" min="${s.min}" max="${s.max}" step="${s.step}" value="${s.def}" oninput="fromNumLive('${s.key}',${s.min},${s.max})" onchange="fromNum('${s.key}',${s.min},${s.max})">
+      </div>
+      <div class="slider-desc">${s.desc}</div>
+      <input type="range" id="sl-${s.key}" min="${s.min}" max="${s.max}" step="${s.step}" value="${s.def}" oninput="fromSlider('${s.key}')">
+    `;
+    grid.appendChild(card);
+    setTimeout(()=> updateFill(s.key, s.min, s.max, s.def), 0);
+  });
+}
+function fromSlider(key) {
+  const sl = document.getElementById('sl-'+key), num = document.getElementById('num-'+key);
+  num.value = sl.value; updateFill(key, +sl.min, +sl.max, +sl.value);
+}
+function fromNumLive(key, min, max) {
+  const num = document.getElementById('num-'+key), sl = document.getElementById('sl-'+key);
+  const v = parseFloat(num.value);
+  if (isNaN(v)) return;
+  const clamped = Math.min(max, Math.max(min, v));
+  sl.value = clamped; updateFill(key, min, max, clamped);
+}
+function fromNum(key, min, max) {
+  const num = document.getElementById('num-'+key), sl = document.getElementById('sl-'+key);
+  let v = parseFloat(num.value);
+  if (isNaN(v)) v = min;
+  v = Math.min(max, Math.max(min, v));
+  sl.value = v; num.value = v; updateFill(key, min, max, v);
+}
+function updateFill(key, min, max, val) {
+  const sl = document.getElementById('sl-'+key);
+  if(!sl) return;
+  const pct = ((val-min)/(max-min))*100;
+  sl.style.background = `linear-gradient(to right,var(--accent) ${pct}%,var(--bg3) ${pct}%)`;
+}
+function getVals() {
+  const config = selectedPos==='goalkeeper' ? GK_SLIDERS : OUT_SLIDERS;
+  const v = {};
+  config.forEach(s => { v[s.key] = parseFloat(document.getElementById('num-'+s.key).value); });
+  return v;
+}
+
+/* ── LOADING ── */
+const LOADING_MSGS = ['Scouting the Champions League...','Running KNN analysis...','Matching your playstyle...','Finding your perfect player...','Almost there...'];
+
+/* ── FIND PLAYERS ── */
+async function findPlayers() {
+  if (!selectedPos) return;
+  const vals = getVals();
+  const btn = document.getElementById('find-btn');
+  btn.disabled = true;
+  document.getElementById('sliders-section').style.display = 'none';
+  document.getElementById('results-section').classList.remove('show');
+  document.getElementById('error-msg').classList.remove('show');
+  const loadEl = document.getElementById('loading');
+  const msgEl  = document.getElementById('load-msg');
+  loadEl.classList.add('show');
+  let mi = 0;
+  const ticker = setInterval(() => {
+    msgEl.style.opacity = '0';
+    setTimeout(() => { msgEl.textContent = LOADING_MSGS[mi++ % LOADING_MSGS.length]; msgEl.style.opacity = '1'; }, 160);
+  }, 1400);
+
+  try {
+    const res = await fetch(BACKEND_URL, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ position: selectedPos, values: vals })
+    });
+    clearInterval(ticker);
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({error: res.statusText}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    showResults(await res.json());
+  } catch(err) {
+    clearInterval(ticker);
+    loadEl.classList.remove('show');
+    btn.disabled = false;
+    document.getElementById('sliders-section').style.display = 'block';
+    const errEl = document.getElementById('error-msg');
+    const isNet = err.message.includes('Failed to fetch') || err.message.includes('NetworkError');
+    errEl.innerHTML = isNet
+      ? '⚠ Cannot reach the backend.<br><small style="font-size:12px;opacity:.75">Make sure <code>python app.py</code> is running, then try again.</small>'
+      : `⚠ ${err.message}`;
+    errEl.classList.add('show');
+  }
+}
+
+/* ── SHOW RESULTS ── */
+function showResults(data) {
+  document.getElementById('loading').classList.remove('show');
+  document.getElementById('team-name').textContent   = data.team        || '—';
+  document.getElementById('team-reason').textContent = data.team_reason || '—';
+
+  const grid = document.getElementById('players-grid');
+  grid.innerHTML = '';
+
+  (data.players || []).forEach((p, idx) => {
+    const card = document.createElement('div');
+    card.className = 'player-card';
+
+    /* ── CONTEXT ROWS — mirrors [PLAYER CONTEXT & UCL 2025 PERFORMANCE] ── */
+    const ctxFields = buildContextRows(p);
+
+    /* ── KNN BREAKDOWN ROWS — mirrors [SCALING & KNN STATS] ── */
+    const bdRows = (p.breakdown || []).map(b => `
+      <div class="bd-row">
+        <span class="bd-feat">${fmtFeature(b.feature)}</span>
+        <span class="bd-player">${b.player_val}</span>
+        <span class="bd-target">${b.target_val}</span>
+        <div class="bd-bar-track"><div class="bd-bar-fill" data-pct="${b.pct}" style="width:0%"></div></div>
+      </div>
+    `).join('');
+
+    const bdId = `bd-${idx}`;
+    const photoId = `photo-${idx}`;
+
+    card.innerHTML = `
+      <div class="pc-top">
+        <div class="pc-match">${p.match}%</div>
+        <div class="pc-photo-wrap">
+          <div class="pc-photo-fallback" id="${photoId}-fallback">${initials(p.name)}</div>
+          <img class="pc-photo" id="${photoId}" src="" alt="${p.name}" style="display:none"
+               onload="this.style.display='block';document.getElementById('${photoId}-fallback').style.display='none';"
+               onerror="this.style.display='none';document.getElementById('${photoId}-fallback').style.display='flex';">
+        </div>
+        <div class="pc-arch">${p.archetype || ''}</div>
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-team">${p.team}</div>
+      </div>
+      <div class="pc-body">
+
+        <!-- PLAYER CONTEXT block -->
+        <div class="pc-context">${ctxFields}</div>
+
+        <!-- KNN BREAKDOWN toggle -->
+        <button class="breakdown-toggle" id="btn-${bdId}" onclick="toggleBreakdown('${bdId}')">
+          KNN Stats Breakdown <span class="bd-arrow">▼</span>
+        </button>
+        <div class="breakdown-panel" id="${bdId}">
+          <div class="bd-head-row">
+            <span>Feature</span>
+            <span style="color:var(--accent)">Player</span>
+            <span>Target</span>
+          </div>
+          ${bdRows}
+        </div>
+
+      </div>
+    `;
+    grid.appendChild(card);
+    // Fetch player photo from Wikipedia after card is in the DOM
+    fetchWikiPhoto(p.name, photoId);
+  });
+
+  const sec = document.getElementById('results-section');
+  sec.classList.add('show');
+  sec.scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Animate breakdown bars after paint
+  requestAnimationFrame(()=> requestAnimationFrame(()=> {
+    document.querySelectorAll('.bd-bar-fill').forEach(el => {
+      el.style.width = (el.dataset.pct || 0) + '%';
+    });
+  }));
+}
+
+/* Build the context rows depending on position (matches notebook output) */
+function buildContextRows(p) {
+  const rows = [];
+  if (p.age            != null) rows.push(['Age',              p.age]);
+  if (p.minutes_played != null) rows.push(['UCL Minutes',      Number(p.minutes_played).toLocaleString()]);
+  if (p.matches_appearance != null) rows.push(['Appearances',  p.matches_appearance]);
+  if (p.passing_accuracy   != null) rows.push(['Pass Acc.',    p.passing_accuracy + '%']);
+  if (p.dribbles           != null) rows.push(['Dribbles',     p.dribbles]);
+  if (p.balls_recovered    != null) rows.push(['Balls Won',    p.balls_recovered]);
+  return rows.map(([lbl, val]) => `
+    <div class="ctx-row">
+      <span class="ctx-label">${lbl}</span>
+      <span class="ctx-val">${val}</span>
+    </div>
+  `).join('');
+}
+
+/* Initials fallback */
+function initials(name) {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+
+/* Fetch player headshot from Wikipedia */
+async function fetchWikiPhoto(playerName, photoId) {
+  // Try multiple search terms in order until one returns a photo
+  const searches = [
+    playerName,
+    playerName + ' footballer',
+    playerName + ' soccer',
+  ];
+
+  for (const term of searches) {
+    try {
+      // Step 1: search for the most relevant page title
+      const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(term)}&format=json&origin=*&srlimit=1`;
+      const searchRes  = await fetch(searchUrl);
+      const searchData = await searchRes.json();
+      const topResult  = searchData?.query?.search?.[0]?.title;
+      if (!topResult) continue;
+
+      // Step 2: fetch the thumbnail for that exact page title
+      const imgUrl  = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(topResult)}&prop=pageimages&format=json&pithumbsize=200&origin=*`;
+      const imgRes  = await fetch(imgUrl);
+      const imgData = await imgRes.json();
+      const pages   = imgData?.query?.pages;
+      const src     = Object.values(pages)[0]?.thumbnail?.source;
+
+      if (src) {
+        const img = document.getElementById(photoId);
+        if (img) img.src = src;
+        return; // success — stop trying
+      }
+    } catch(e) {
+      // try next search term
+    }
+  }
+  // all attempts failed — initials fallback stays visible
+}
+
+/* Pretty-print a raw CSV column name */
+function fmtFeature(f) {
+  return f.replace(/[()]/g,'').replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+/* Toggle KNN breakdown panel */
+function toggleBreakdown(id) {
+  const panel = document.getElementById(id);
+  const btn   = document.getElementById('btn-'+id);
+  const open  = panel.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  if (open) {
+    requestAnimationFrame(()=> requestAnimationFrame(()=> {
+      panel.querySelectorAll('.bd-bar-fill').forEach(el => {
+        el.style.width = (el.dataset.pct || 0) + '%';
+      });
+    }));
+  }
+}
+
+/* ── RESET ── */
+function reset() {
+  selectedPos = null;
+  ['pos-gk','pos-out'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('sliders-section').style.display = 'none';
+  document.getElementById('sliders-section').classList.remove('show');
+  document.getElementById('results-section').classList.remove('show');
+  document.getElementById('error-msg').classList.remove('show');
+  document.getElementById('find-btn').disabled = false;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── 3D TILT ON POSITION CARDS ── */
+document.querySelectorAll('.pos-card-wrap').forEach(wrap => {
+  const card = wrap.querySelector('.pos-card');
+  wrap.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    const cx = r.width / 2, cy = r.height / 2;
+    const rotX = ((y - cy) / cy) * -10;
+    const rotY = ((x - cx) / cx) * 10;
+    const shine = `radial-gradient(circle at ${x}px ${y}px, rgba(0,229,255,0.12) 0%, transparent 65%)`;
+    card.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(6px)`;
+    card.style.transition = 'transform 0.08s ease, box-shadow 0.22s, border-color 0.22s';
+    card.style.setProperty('--shine', shine);
+  });
+  wrap.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+    card.style.transition = 'transform 0.45s cubic-bezier(.23,1,.32,1), box-shadow 0.22s, border-color 0.22s';
+  });
+  wrap.addEventListener('mousedown', () => {
+    card.style.transform = 'rotateX(2deg) translateZ(-4px) scale(0.97)';
+    card.style.transition = 'transform 0.08s ease';
+  });
+  wrap.addEventListener('mouseup', () => {
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+    card.style.transition = 'transform 0.3s cubic-bezier(.23,1,.32,1)';
+  });
+});
+
+/* ── HAPTIC RIPPLE on any .pos-card, .btn-find, .btn-reset ── */
+function addRipple(el) {
+  el.style.position = 'relative';
+  el.style.overflow = 'hidden';
+  el.addEventListener('click', function(e) {
+    const r = el.getBoundingClientRect();
+    const rpl = document.createElement('span');
+    const size = Math.max(r.width, r.height) * 2;
+    rpl.style.cssText = `
+      position:absolute;border-radius:50%;pointer-events:none;
+      width:${size}px;height:${size}px;
+      left:${e.clientX - r.left - size/2}px;
+      top:${e.clientY - r.top - size/2}px;
+      background:radial-gradient(circle,rgba(0,229,255,0.25) 0%,transparent 65%);
+      transform:scale(0);animation:rippleOut 0.55s ease-out forwards;
+      z-index:10;`;
+    el.appendChild(rpl);
+    setTimeout(() => rpl.remove(), 600);
+  });
+}
+const rippleStyle = document.createElement('style');
+rippleStyle.textContent = '@keyframes rippleOut{to{transform:scale(1);opacity:0;}}';
+document.head.appendChild(rippleStyle);
+document.querySelectorAll('.pos-card, .btn-find, .btn-reset').forEach(addRipple);
+
+/* ── SLIDER THUMB PULSE on input ── */
+document.addEventListener('input', e => {
+  if (e.target.type === 'range') {
+    e.target.classList.add('thumb-pop');
+    clearTimeout(e.target._popTimer);
+    e.target._popTimer = setTimeout(() => e.target.classList.remove('thumb-pop'), 200);
+  }
+});
+const thumbStyle = document.createElement('style');
+thumbStyle.textContent = `
+  input[type=range].thumb-pop::-webkit-slider-thumb{
+    transform:scale(1.35);
+    box-shadow:0 0 26px rgba(0,229,255,1),0 3px 12px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.6);}`;
+document.head.appendChild(thumbStyle);
+
+/* ── STAGGER-IN + TILT + RIPPLE for slider cards ── */
+const origBuild = buildSliders;
+window.buildSliders = function(config) {
+  origBuild(config);
+  document.querySelectorAll('.slider-card').forEach((card, i) => {
+    /* stagger in */
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(16px)';
+    card.style.transition = 'none';
+    setTimeout(() => {
+      card.style.transition = 'opacity 0.32s ease, transform 0.32s ease, border-color 0.22s, box-shadow 0.22s';
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+      /* wire tilt + ripple after card is visible */
+      setTimeout(() => initSliderCard(card), 340);
+    }, 60 + i * 45);
+  });
+};
+
+function initSliderCard(card) {
+  /* 3D tilt on mousemove */
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    const cx = r.width / 2, cy = r.height / 2;
+    const rotX = ((y - cy) / cy) * -7;
+    const rotY = ((x - cx) / cx) * 7;
+    card.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(4px)`;
+    card.style.transition = 'transform 0.08s ease, border-color 0.22s, box-shadow 0.22s';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+    card.style.transition = 'transform 0.45s cubic-bezier(.23,1,.32,1), border-color 0.22s, box-shadow 0.22s';
+    card.classList.remove('pressing');
+  });
+  card.addEventListener('mousedown', e => {
+    /* only trigger on the card background, not on the slider/input itself */
+    if (e.target.type === 'range' || e.target.type === 'number') return;
+    card.classList.add('pressing');
+    card.style.transform = 'rotateX(1deg) translateZ(-3px) scale(0.98)';
+    card.style.transition = 'transform 0.08s ease';
+  });
+  card.addEventListener('mouseup', () => {
+    card.classList.remove('pressing');
+    card.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+    card.style.transition = 'transform 0.3s cubic-bezier(.23,1,.32,1)';
+  });
+  /* ripple on click (card background only) */
+  card.addEventListener('click', e => {
+    if (e.target.type === 'range' || e.target.type === 'number' || e.target.tagName === 'INPUT') return;
+    const r = card.getBoundingClientRect();
+    const rpl = document.createElement('span');
+    const size = Math.max(r.width, r.height) * 2;
+    rpl.style.cssText = `
+      position:absolute;border-radius:50%;pointer-events:none;
+      width:${size}px;height:${size}px;
+      left:${e.clientX - r.left - size/2}px;
+      top:${e.clientY - r.top - size/2}px;
+      background:radial-gradient(circle,rgba(0,229,255,0.18) 0%,transparent 65%);
+      transform:scale(0);animation:rippleOut 0.6s ease-out forwards;z-index:10;`;
+    card.appendChild(rpl);
+    setTimeout(() => rpl.remove(), 650);
+  });
+}
+</script>
+</body>
+</html>
